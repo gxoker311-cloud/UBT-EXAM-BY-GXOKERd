@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gxoker UBT Elite V15</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Montserrat:wght@500;700&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary: #00d2ff; 
+            --secondary: #3a7bd5; 
+            --neon-green: #00ff87;
+            --danger: #ff4757; 
+            --dark: #080e1a;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', 'Pyidaungsu', sans-serif; }
+        body { margin: 0; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; color: #fff; background: #080e1a; }
+
+        /* 🟢 Login Screen */
+        #login-screen { position: fixed; inset: 0; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 15px; background: radial-gradient(circle at center, #1e293b, #080e1a); }
+        .glass-card { background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); border-radius: 20px; width: 100%; max-width: 380px; overflow: hidden; }
+        input[type="text"] { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--primary); background: rgba(255,255,255,0.1); color: #fff; font-size: 15px; margin-top: 10px; outline: none; }
+        .start-btn { width: 100%; padding: 18px; border: none; background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: #fff; font-weight: 700; cursor: pointer; font-size: 16px; text-transform: uppercase; }
+
+        /* 🔵 Exam Screen */
+        #exam-screen { display: none; flex-direction: column; height: 100dvh; background: #ffffff; color: #1e293b; }
+        .ubt-header { display: flex; background: #000; color: #fff; height: 50px; z-index: 10; border-bottom: 2px solid var(--primary); }
+        .h-box { flex: 1; border-right: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 10px; font-family: 'Orbitron'; }
+
+        .main-view { display: flex; flex: 1; overflow: hidden; padding: 10px; gap: 10px; }
+        .q-pane { flex: 1.3; position: relative; border-radius: 15px; overflow: hidden; border: 2px solid #e2e8f0; background: #fff; }
+        .q-content-inner { position: relative; z-index: 2; padding: 15px; height: 100%; overflow-y: auto; }
+        .q-text { font-size: 13.5px; line-height: 1.8; font-weight: 700; color: #000; white-space: pre-line; }
+        .q-img { width: 100%; max-width: 320px; border-radius: 10px; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; border: 1px solid #eee; }
+        .underline { text-decoration: underline; text-underline-offset: 4px; color: #3a7bd5; font-weight: 900; }
+
+        /* Answer Pane */
+        .a-pane { flex: 1; background: #fff; border-radius: 15px; padding: 15px; overflow-y: auto; border: 1px solid #e2e8f0; }
+        .ans-item { display: flex; align-items: center; padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-size: 13px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155; font-weight: 600; }
+        .ans-item.selected { background: var(--secondary); color: #fff; border-color: var(--secondary); }
+        .ans-num { width: 22px; height: 22px; border: 1.5px solid currentColor; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 11px; flex-shrink: 0; }
+
+        .ubt-footer { display: flex; height: 60px; background: #000; padding: 10px; gap: 10px; }
+        .f-btn { flex: 1; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 11px; border-radius: 10px; background: rgba(255,255,255,0.1); }
+
+        /* Review Section */
+        #result-screen { position: fixed; inset: 0; z-index: 6000; background: #080e1a; display: none; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .result-card { background: #fff; width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; text-align: center; color: #000; margin-bottom: 20px; }
+        .review-item { background: #fff; color: #000; border-radius: 15px; padding: 15px; margin-bottom: 15px; border-left: 8px solid #ddd; width: 100%; max-width: 500px; text-align: left; }
+        .rev-correct { border-left-color: var(--neon-green); }
+        .rev-wrong { border-left-color: var(--danger); }
+        .rev-opt { font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-top: 5px; background: #f1f5f9; }
+        .opt-correct { background: #d1fae5; font-weight: 700; border: 1px solid #10b981; }
+        .opt-user-wrong { background: #fee2e2; border: 1px solid #ef4444; }
+
+        @media (max-width: 768px) { .main-view { flex-direction: column; } .q-pane { flex: none; height: 45%; } }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="glass-card">
+            <div style="background: #000; padding: 20px; text-align: center; font-family: 'Orbitron'; font-weight: 700; color: var(--primary);">GXOKER UBT EXAM SET-25</div>
+            <div style="padding: 25px;">
+                <label style="font-size:11px; color:var(--primary); font-weight: bold;">CANDIDATE NAME</label>
+                <input type="text" id="c-name" placeholder="Enter Name">
+                <div style="display:flex; gap:15px; margin-top:20px; align-items:center;">
+                    <img id="img-prev" src="https://i.imgur.com/edHMTVH.jpeg" style="width:70px; height:90px; border-radius:10px; border:2px solid var(--primary); object-fit:cover;">
+                    <label for="file-input" style="background:var(--primary); padding:10px 15px; border-radius:8px; cursor:pointer; font-size:10px; font-weight: 900; color:#000;">UPLOAD PHOTO</label>
+                    <input type="file" id="file-input" accept="image/*" style="display:none;">
+                </div>
+            </div>
+            <button class="start-btn" id="start-btn">LOGIN TO TEST</button>
+        </div>
+    </div>
+
+    <div id="exam-screen">
+        <div class="ubt-header">
+            <div class="h-box" id="d-name">CANDIDATE</div>
+            <div class="h-box" id="timer-val" style="color:var(--neon-green); font-size: 14px;">20:00</div>
+            <div class="h-box">REMAIN: <span id="rem-count">20</span></div>
+        </div>
+        <div class="main-view">
+            <div class="q-pane">
+                <div class="q-content-inner" id="q-content"></div>
+            </div>
+            <div class="a-pane" id="ans-list"></div>
+        </div>
+        <div class="ubt-footer">
+            <div class="f-btn" onclick="step(-1)">PREVIOUS</div>
+            <div class="f-btn" onclick="step(1)">NEXT</div>
+            <div class="f-btn" id="sub-btn" style="background:var(--danger); border:none;">SUBMIT</div>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <div class="result-card">
+            <img id="r-photo" style="width:90px; height:110px; border-radius:10px; border:2px solid var(--secondary); object-fit:cover;">
+            <h2 id="r-name" style="margin: 10px 0 5px; font-size: 18px;">NAME</h2>
+            <div id="res-score" style="font-size:55px; font-weight:900; color:var(--secondary);">0</div>
+            <p style="font-weight:700; color:#64748b;">TOTAL SCORE</p>
+            <button style="width:100%; padding:14px; border-radius:10px; background:#080e1a; color:#fff; border:none; font-weight:bold; cursor:pointer;" onclick="location.reload()">RETAKE</button>
+        </div>
+        <div id="review-list" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+    </div>
+
+<script>
+    const questions = [
+        { q: "[1-2] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.\n\n1.", i: "https://i.imgur.com/DE5ywdo.jpeg", a: ["거울을 보면서 머리를 빗고 있습니다.", "욕실에서 깨끗하게 세수를 합니다.", "수건으로 얼굴의 물기를 닦습니다.", "미용실에서 머리를 짧게 자릅니다."], c: 0 },
+        { q: "2.", i: "https://i.imgur.com/LSRVngf.jpeg", a: ["추울 때 입는 두꺼운 옷입니다.", "더울 때 바람을 일으키는 부채입니다.", "비가 올 때 쓰는 큰 우산입니다.", "눈이 올 때 끼는 따뜻한 장갑입니다."], c: 1 },
+        { q: "[3] 다음 중 부분이 문법적으로 맞는 것을 고르십시오.\n\n3.\n\n① 배가 <span class='underline'>(고프면)</span> 밥을 먹으러 가요.\n\n② 날씨가 <span class='underline'>(좋고)</span> 소풍을 갔습니다.\n\n③ 한국어를 <span class='underline'>(배우는)</span> 아주 재미있습니다.\n\n④ 영화를 <span class='underline'>(보러)</span> 친구를 만났습니다.", a: ["1번", "2번", "3번", "4번"], c: 0 },
+        { q: "4. 다음 그림을 보고 빈칸에 가장 알맞은 표현을 고르십시오.", i: "https://i.imgur.com/Ha3YtTf.jpeg", a: ["간", "가", "갸", "게"], c: 3 },
+        { q: "[5-6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n5. 아침에 일어나서 가장 먼저______을/를 합니다. 얼굴을 씻고 나면 기분이 상쾌해집니다.", a: ["요리", "세수", "쇼핑", "운전"], c: 1 },
+        { q: "6. 목이 너무 말라서 _____에 가서 시원한 물을 마셨습니다.", a: ["세탁기", "정수기", "청소기", "계산기"], c: 1 },
+        { q: "7. 다음 단어의 비슷한 말은 무엇입니까?\n\n[ 가방을 메다 ]", a: ["들다", "사다", "보다", "놓다"], c: 0 },
+        { q: "8. 다음 단어의 반대말은 무엇입니까?\n\n[ 입구 ]", a: ["창문", "출구", "계단", "옥상"], c: 1 },
+        { q: "9. 저는 오늘 백화점에 갔습니다. 동생의 생일 선물을 사기 위해서 예쁜 모자를 골랐습니다. 가격이 조금 비쌌지만 동생이 좋아할 것 같아서 기분이 좋습니다.", a: ["오늘 동생의 생일입니다.", "백화점에서 모자를 샀습니다.", "모자 가격이 아주 쌉니다.", "선물을 받아서 기분이 좋습니다."], c: 1 },
+        { q: "10. 우리 회사는 아침 9시에 일을 시작합니다. 12시부터 1시까지는 점심시간입니다. 점심을 먹고 나면 동료들과 함께 커피를 마시며 이야기를 나눕니다.", a: ["아침 12시에 일을 시작합니다.", "한 시간 동안 점심을 먹습니다.", "점심시간에 혼자서 잠을 잡니다.", "회사에서 커피를 팔고 있습니다."], c: 1 },
+        { q: "11. 한국의 겨울은 매우 춥고 눈이 많이 옵니다. 그래서 밖으로 나갈 때는 따뜻한 코트를 입고 목도리를 해야 합니다. 장갑을 끼면 손이 시렵지 않아서 좋습니다.", a: ["겨울에는 날씨가 따뜻합니다.", "밖에서 목도리를 하면 안 됩니다.", "추울 때는 장갑이 필요합니다.", "겨울에는 눈이 절대 오지 않습니다."], c: 2 },
+        { q: "12. 길을 건널 때는 반드시 횡단보도를 이용해야 합니다. 초록색 불이 켜졌을 때 좌우를 살피고 천천히 건너야 안전합니다. 무단횡단은 아주 위험합니다.", a: ["빨간색 불일 때 길을 건너야 합니다.", "횡단보도가 아닌 곳으로 건너도 됩니다.", "길을 건널 때는 안전을 위해 조심해야 합니다.", "좌우를 보지 않고 빨리 뛰어가야 합니다."], c: 2 },
+        { q: "13. 어제 시장에 가서 포도를 _____아주 달고 맛이 있었습니다.", a: ["샀더니", "사려고", "사지만", "사거나"], c: 0 },
+        { q: "14. 머리가 너무 ______보건실에 가서 약을 먹고 조금 쉬었습니다.", a: ["아파서", "아프고", "아프지만", "아프러"], c: 0 },
+        { q: "15. 이것은 높은 곳에 올라갈 때 사용하는 도구입니다. 나무나 벽에 세워 두고 발을 딛고 위로 올라갈 수 있습니다.", a: ["의자", "사다리", "침대", "책상"], c: 1 },
+        { q: "16. 이것은 밥을 먹을 때 국이나 찌개를 떠서 먹는 도구입니다. 한국 사람들은 이것과 젓가락을 같이 사용합니다.", a: ["포크", "숟가락", "칼", "컵"], c: 1 },
+        { q: "17. 저는 주말에 보통 집에서 쉽니다. 집에서 영화를 보거나 밀린 빨래를 합니다. 가끔 날씨가 좋으면 근처 공원에 가서 운동을 하기도 합니다.", a: ["주말마다 항상 운동을 합니다.", "주말에는 절대로 빨래를 안 합니다.", "보통 집에서 휴식을 취합니다.", "영화를 보러 항상 극장에 갑니다."], c: 2 },
+        { q: "18. 도서관에서 책을 빌릴 때는 회원 카드가 필요합니다. 책을 다 읽은 후에는 정해진 날짜까지 반드시 돌려주어야 합니다. 도서관 안에서는 조용히 해야 합니다.", a: ["도서관 카드가 없어도 책을 빌릴 수 있습니다.", "책은 아무 때나 돌려주면 됩니다.", "도서관에서는 큰 소리로 떠들면 안 됩니다.", "도서관에서는 책을 빌려주지 않습니다."], c: 2 },
+        { q: "19. 건물이 높거나 위험한 곳에서 일할 때 머리를 보호하기 위해 머리에 쓰는 모자입니다.", a: ["안전모", "야구모", "요리사 모자", "수영모"], c: 0 },
+        { q: "20. 옷이 더러워졌을 때 물과 세제를 넣고 깨끗하게 빨아 주는 기계입니다.", a: ["냉장고", "세탁기", "에어컨", "텔레비전"], c: 1 }
+    ];
+
+    let idx = 0, userAns = Array(20).fill(null), clock = 1200, timerId, userPhoto = "https://i.imgur.com/edHMTVH.jpeg";
+
+    document.getElementById('file-input').onchange = (e) => {
+        const file = e.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => { userPhoto = ev.target.result; document.getElementById('img-prev').src = userPhoto; };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    document.getElementById('start-btn').onclick = () => {
+        const nameInput = document.getElementById('c-name');
+        if(!nameInput.value.trim()) { alert("နာမည်ထည့်ပါ!"); return; }
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('exam-screen').style.display = 'flex';
+        document.getElementById('d-name').innerText = nameInput.value.toUpperCase();
+        render();
+        timerId = setInterval(() => {
+            clock--;
+            let m = Math.floor(clock/60), s = clock%60;
+            document.getElementById('timer-val').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(clock <= 0) finish();
+        }, 1000);
+    };
+
+    function render() {
+        const qData = questions[idx];
+        let imgTag = qData.i ? `<img src="${qData.i}" class="q-img">` : "";
+        document.getElementById('q-content').innerHTML = `
+            <div style="color:var(--secondary); font-size:10px; font-weight:700; margin-bottom:10px;">QUESTION ${idx+1} OF 20</div>
+            ${imgTag}
+            <div class="q-text">${qData.q}</div>`;
+        document.getElementById('ans-list').innerHTML = qData.a.map((opt, i) => `
+            <div class="ans-item ${userAns[idx] === i ? 'selected' : ''}" onclick="pick(${i})">
+                <div class="ans-num">${i+1}</div><div>${opt}</div>
+            </div>`).join('');
+        document.getElementById('rem-count').innerText = 20 - userAns.filter(a => a !== null).length;
+    }
+
+    window.pick = (i) => { userAns[idx] = i; render(); };
+    window.step = (d) => { if(idx+d >= 0 && idx+d < 20) { idx += d; render(); } };
+
+    function finish() {
+        if(!confirm("Submit answers?")) return;
+        clearInterval(timerId);
+        let correctCount = userAns.filter((ans, i) => ans === questions[i].c).length;
+        let score = correctCount * 5;
+        let name = document.getElementById('c-name').value;
+
+        // Google Sheet Submit
+        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdxfNVh2zRbeYYxa7HF7kklyLLgufaC_S7NfcDtUpiPquI2Sw/formResponse";
+        const formData = new FormData();
+        formData.append("entry.762387390", name); 
+        formData.append("entry.1720219548", score);
+        fetch(FORM_URL, { method: "POST", mode: "no-cors", body: formData });
+
+        document.getElementById('r-name').innerText = name.toUpperCase();
+        document.getElementById('r-photo').src = userPhoto;
+        document.getElementById('res-score').innerText = score;
+
+        let reviewHtml = questions.map((q, i) => {
+            const isCorrect = userAns[i] === q.c;
+            let optsHtml = q.a.map((opt, oIdx) => {
+                let statusClass = "";
+                if(oIdx === q.c) statusClass = "opt-correct";
+                else if(oIdx === userAns[i]) statusClass = "opt-user-wrong";
+                return `<div class="rev-opt ${statusClass}">${oIdx+1}. ${opt}</div>`;
+            }).join('');
+
+            return `
+                <div class="review-item ${isCorrect ? 'rev-correct' : 'rev-wrong'}">
+                    <div style="font-weight:700; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">Q${i+1}. ${isCorrect ? 'PASSED ✅' : 'FAILED ❌'}</div>
+                    <div class="q-text" style="font-size:12.5px; margin-bottom:10px;">${q.q}</div>
+                    ${optsHtml}
+                </div>`;
+        }).join('');
+        
+        document.getElementById('review-list').innerHTML = `<h3 style="color:#fff; font-family:'Orbitron';">FULL REVIEW</h3>${reviewHtml}`;
+        document.getElementById('exam-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+    }
+
+    document.getElementById('sub-btn').onclick = finish;
+</script>
+</body>
+  </html>
+
